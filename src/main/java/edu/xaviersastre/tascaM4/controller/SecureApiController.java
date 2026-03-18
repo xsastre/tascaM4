@@ -1,6 +1,7 @@
 package edu.xaviersastre.tascaM4.controller;
 
 import edu.xaviersastre.tascaM4.security.EncryptionService;
+import edu.xaviersastre.tascaM4.service.StoreMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +15,16 @@ public class SecureApiController {
     @Autowired
     private EncryptionService encryptionService;
 
-    private String storedData = ""; // Simulació de persistència
+    @Autowired
+    private StoreMessageService storeMessageService;
 
     @PostMapping
     public ResponseEntity<Map<String, String>> saveData(@RequestBody Map<String, String> payload) {
         try {
             String text = payload.get("text");
             // Xifrar abans de guardar (Com a secure_api.php)
-            storedData = encryptionService.encrypt(text);
+            String encrypted = encryptionService.encrypt(text);
+            storeMessageService.saveToFile(encrypted);
             return ResponseEntity.ok(Map.of("message", "Texto cifrado y almacenado"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
@@ -31,11 +34,12 @@ public class SecureApiController {
     @GetMapping
     public ResponseEntity<Map<String, String>> getData() {
         try {
-            if (storedData.isEmpty()) {
+            String lastStoredData = storeMessageService.readLastMessage().orElse("");
+            if (lastStoredData.isEmpty()) {
                 return ResponseEntity.status(404).body(Map.of("error", "No hay mensajes"));
             }
             // Desxifrar abans de retornar
-            String decrypted = encryptionService.decrypt(storedData);
+            String decrypted = encryptionService.decrypt(lastStoredData);
             return ResponseEntity.ok(Map.of("plaintext", decrypted));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Desencriptación fallida"));
