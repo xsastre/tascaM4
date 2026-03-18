@@ -21,11 +21,10 @@ public class InsecureApiController {
     private String storedData = ""; // Simulació de persistència (sense xifrat)
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> saveData(@RequestBody Map<String, String> payload) throws Exception {
+    public ResponseEntity<Map<String, String>> saveData(@RequestBody Map<String, String> payload) {
         try {
             String text = payload.get("text");
-            String notencrypted = noEncryptionService.noencrypt(text);
-            storedData = notencrypted;
+            storedData = noEncryptionService.noencrypt(text);
             return ResponseEntity.ok(Map.of("message", "Texto almacenado en claro"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
@@ -33,7 +32,7 @@ public class InsecureApiController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, String>> getData() throws Exception {
+    public ResponseEntity<Map<String, String>> getData() {
         try {
             if (storedData.isEmpty()) {
                 return ResponseEntity.status(404).body(Map.of("error", "No hay mensajes"));

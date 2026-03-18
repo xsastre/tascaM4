@@ -21,8 +21,7 @@ public class SecureApiController {
         try {
             String text = payload.get("text");
             // Xifrar abans de guardar (Com a secure_api.php)
-            String encrypted = encryptionService.encrypt(text);
-            storedData = encrypted;
+            storedData = encryptionService.encrypt(text);
             return ResponseEntity.ok(Map.of("message", "Texto cifrado y almacenado"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));

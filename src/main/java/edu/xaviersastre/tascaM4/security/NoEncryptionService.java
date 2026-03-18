@@ -10,7 +10,7 @@ public class NoEncryptionService {
     @Autowired
     private StoreMessageService storeMessageService;
 
-    public String noencrypt(String plaintext) throws Exception {
+    public String noencrypt(String plaintext) {
         // Guardar a data.txt per verificar que el contingut NO es xifra
         storeMessageService.saveToFile(plaintext);
 
